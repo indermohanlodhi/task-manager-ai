@@ -1,5 +1,6 @@
 // Create an Express API for task management with GET and POST endpoints
 const express = require('express');
+const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -7,6 +8,7 @@ const tasks = [];
 let nextTaskId = 1;
 
 app.use(express.json());
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 app.get('/tasks', (req, res) => {
 	res.json(tasks);

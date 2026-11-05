@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#f4f6f1">
+	<title>Tasks | Daybook</title>
+	<style>
+		:root {
+			color-scheme: light;
+			--ink: #202820;
+			--muted: #788177;
+			--line: #e2e7df;
+			--paper: #fff;
+			--canvas: #f4f6f1;
+			--accent: #c9ef6a;
+			--accent-dark: #23351c;
+			--danger: #a53d35;
+			font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+		}
+
+		* { box-sizing: border-box; }
+
+		body {
+			min-width: 320px;
+			min-height: 100vh;
+			margin: 0;
+			color: var(--ink);
+			background-color: var(--canvas);
+			background-image: radial-gradient(#dce3d6 0.7px, transparent 0.7px);
+			background-size: 18px 18px;
+		}
+
+		.page {
+			width: min(100% - 40px, 720px);
+			margin: 0 auto;
+			padding: 48px 0 72px;
+		}
+
+		header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 48px;
+		}
+
+		.brand {
+			display: inline-flex;
+			align-items: center;
+			gap: 10px;
+			font-size: 14px;
+			font-weight: 700;
+			letter-spacing: 0.02em;
+		}
+
+		.brand-mark {
+			display: grid;
+			width: 30px;
+			height: 30px;
+			place-items: center;
+			border-radius: 9px;
+			background: var(--accent);
+			color: var(--accent-dark);
+			font-size: 18px;
+		}
+
+		.date {
+			color: var(--muted);
+			font-size: 13px;
+		}
+
+		.intro { margin-bottom: 28px; }
+
+		.eyebrow {
+			margin: 0 0 10px;
+			color: #64705e;
+			font-size: 11px;
+			font-weight: 700;
+			letter-spacing: 0.12em;
+			text-transform: uppercase;
+		}
+
+		h1 {
+			margin: 0;
+			font-family: Georgia, "Times New Roman", serif;
+			font-size: clamp(36px, 8vw, 52px);
+			font-weight: 400;
+			line-height: 1.05;
+		}
+
+		.subtitle {
+			margin: 12px 0 0;
+			color: var(--muted);
+			font-size: 15px;
+		}
+
+		form {
+			display: flex;
+			gap: 10px;
+			padding: 8px;
+			border: 1px solid var(--line);
+			border-radius: 10px;
+			background: var(--paper);
+			box-shadow: 0 8px 24px #26341b0a;
+		}
+
+		input {
+			flex: 1;
+			min-width: 0;
+			padding: 12px 14px;
+			border: 0;
+			outline: 0;
+			background: transparent;
+			color: var(--ink);
+			font: inherit;
+			font-size: 15px;
+		}
+
+		input::placeholder { color: #9aa195; }
+		form:focus-within { border-color: #9ebd67; }
+
+		button {
+			min-height: 44px;
+			padding: 0 18px;
+			border: 0;
+			border-radius: 7px;
+			background: var(--accent);
+			color: var(--accent-dark);
+			cursor: pointer;
+			font: inherit;
+			font-size: 14px;
+			font-weight: 700;
+			transition: background-color 140ms ease, transform 140ms ease;
+		}
+
+		button:hover { background: #b9e451; }
+		button:active { transform: translateY(1px); }
+		button:disabled { cursor: wait; opacity: 0.65; }
+
+		.list-heading {
+			display: flex;
+			align-items: baseline;
+			justify-content: space-between;
+			margin: 34px 0 12px;
+		}
+
+		h2 {
+			margin: 0;
+			font-size: 15px;
+			font-weight: 700;
+		}
+
+		#task-count {
+			color: var(--muted);
+			font-size: 12px;
+		}
+
+		#task-list {
+			margin: 0;
+			padding: 0;
+			border-top: 1px solid var(--line);
+			list-style: none;
+		}
+
+		.task {
+			display: flex;
+			align-items: center;
+			gap: 14px;
+			min-height: 62px;
+			border-bottom: 1px solid var(--line);
+			animation: arrive 220ms ease both;
+		}
+
+		.task-marker {
+			width: 9px;
+			height: 9px;
+			flex: 0 0 auto;
+			border: 1px solid #9cac8c;
+			border-radius: 50%;
+			background: var(--paper);
+		}
+
+		.task-title {
+			overflow-wrap: anywhere;
+			font-size: 14px;
+		}
+
+		.message {
+			padding: 28px 0;
+			color: var(--muted);
+			font-size: 14px;
+		}
+
+		.message[hidden] { display: none; }
+		.message.error { color: var(--danger); }
+
+		@keyframes arrive {
+			from { opacity: 0; transform: translateY(5px); }
+			to { opacity: 1; transform: translateY(0); }
+		}
+
+		@media (max-width: 520px) {
+			.page { width: min(100% - 32px, 720px); padding-top: 28px; }
+			header { margin-bottom: 40px; }
+			.date { font-size: 12px; }
+			form { gap: 4px; }
+			button { padding: 0 13px; }
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			*, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+		}
+	</style>
+</head>
+<body>
+	<main class="page">
+		<header>
+			<div class="brand"><span class="brand-mark" aria-hidden="true">✓</span> Daybook</div>
+			<time class="date" id="today"></time>
+		</header>
+
+		<section class="intro" aria-labelledby="page-title">
+			<p class="eyebrow">A little progress, every day</p>
+			<h1 id="page-title">Your tasks</h1>
+			<p class="subtitle">Make room for what matters next.</p>
+		</section>
+
+		<form id="task-form">
+			<label for="task-input" hidden>New task</label>
+			<input id="task-input" name="title" type="text" placeholder="What needs doing?" maxlength="200" autocomplete="off" required>
+			<button id="add-button" type="submit">Add task <span aria-hidden="true">+</span></button>
+		</form>
+
+		<section aria-labelledby="list-title">
+			<div class="list-heading">
+				<h2 id="list-title">Up next</h2>
+				<span id="task-count">0 tasks</span>
+			</div>
+			<p class="message" id="status" role="status" aria-live="polite">Loading tasks…</p>
+			<ul id="task-list" aria-label="Tasks"></ul>
+		</section>
+	</main>
+
+	<script>
+		const form = document.querySelector('#task-form');
+		const input = document.querySelector('#task-input');
+		const addButton = document.querySelector('#add-button');
+		const taskList = document.querySelector('#task-list');
+		const taskCount = document.querySelector('#task-count');
+		const status = document.querySelector('#status');
+
+		document.querySelector('#today').textContent = new Intl.DateTimeFormat(undefined, {
+			weekday: 'short', month: 'long', day: 'numeric'
+		}).format(new Date());
+
+		function showStatus(message, isError = false) {
+			status.textContent = message;
+			status.classList.toggle('error', isError);
+			status.hidden = false;
+		}
+
+		function renderTasks(tasks) {
+			taskList.replaceChildren();
+			taskCount.textContent = `${tasks.length} ${tasks.length === 1 ? 'task' : 'tasks'}`;
+
+			if (tasks.length === 0) {
+				showStatus('Nothing on the list yet. Add a task to get started.');
+				return;
+			}
+
+			status.hidden = true;
+			for (const task of tasks) {
+				const item = document.createElement('li');
+				item.className = 'task';
+
+				const marker = document.createElement('span');
+				marker.className = 'task-marker';
+				marker.setAttribute('aria-hidden', 'true');
+
+				const title = document.createElement('span');
+				title.className = 'task-title';
+				title.textContent = task.title;
+
+				item.append(marker, title);
+				taskList.append(item);
+			}
+		}
+
+		async function loadTasks() {
+			showStatus('Loading tasks…');
+			try {
+				const response = await fetch('/tasks');
+				if (!response.ok) throw new Error('Could not load tasks.');
+				renderTasks(await response.json());
+			} catch {
+				showStatus('Could not connect to the task list. Please try again.', true);
+			}
+		}
+
+		form.addEventListener('submit', async (event) => {
+			event.preventDefault();
+			const title = input.value.trim();
+			if (!title) {
+				input.focus();
+				return;
+			}
+
+			addButton.disabled = true;
+			try {
+				const response = await fetch('/tasks', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ title })
+				});
+				if (!response.ok) throw new Error('Could not add task.');
+				input.value = '';
+				input.focus();
+				await loadTasks();
+			} catch {
+				showStatus('Could not add your task. Please try again.', true);
+			} finally {
+				addButton.disabled = false;
+			}
+		});
+
+		loadTasks();
+	</script>
+</body>
+</html>
